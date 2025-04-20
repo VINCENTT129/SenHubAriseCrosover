@@ -69,27 +69,33 @@ end -- Properly close the if statement
 -- Farm Tab
 local MainTab = Window:CreateTab("Farm", 4483362458) -- Title, Image
 
+-- Variable to track the toggle state
+local autoDestroyEnabled = false
+
 -- Add a toggle to the Farm tab
 local Toggle = MainTab:CreateToggle({
     Name = "Auto Destroy Enemy",
     CurrentValue = false,
     Flag = "AutoDestroyEnemyToggle", -- Unique identifier for the toggle
     Callback = function(Value)
+        autoDestroyEnabled = Value -- Update the toggle state
         if Value then
             -- Code to execute when the toggle is turned on
-            while Value do
-                local args = {
-                    {
+            spawn(function() -- Run the loop in a separate thread
+                while autoDestroyEnabled do
+                    local args = {
                         {
-                            Event = "EnemyDestroy",
-                            Enemy = "b82ae611a4814893976ce1505ce639a2"
-                        },
-                        "\4"
+                            {
+                                Event = "EnemyDestroy",
+                                Enemy = "b82ae611a4814893976ce1505ce639a2"
+                            },
+                            "\4"
+                        }
                     }
-                }
-                game:GetService("ReplicatedStorage"):WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
-                task.wait(0.1) -- Adjust the delay as needed
-            end
+                    game:GetService("ReplicatedStorage"):WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+                    task.wait(0.1) -- Adjust the delay as needed
+                end
+            end)
         else
             -- Code to execute when the toggle is turned off
             print("Auto Destroy Enemy disabled")
