@@ -1,0 +1,100 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Table to track used keys
+local usedKeys = {}
+
+local Window = Rayfield:CreateWindow({
+    Name = "Sen Hub",
+    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+    LoadingTitle = "Welcome to Sen Hub",
+    LoadingSubtitle = "Premium Features Unlocked",
+    Theme = "Dark", -- Stylized theme for a premium look. Check https://docs.sirius.menu/rayfield/configuration/themes for more options.
+
+    DisableRayfieldPrompts = false,
+    DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+
+    ConfigurationSaving = {
+       Enabled = true,
+       FolderName = "SenHub", -- Custom folder for saving configurations
+       FileName = "SenHub_Config"
+    },
+
+    Discord = {
+       Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
+       Invite = "SenCommunity", -- Replace with your actual Discord invite code
+       RememberJoins = true -- Set this to false to make them join the Discord every time they load it up
+    },
+
+    KeySystem = true, -- Enable the key system
+    KeySettings = {
+       Title = "Sen Hub Key System",
+       Subtitle = "Enter Your Premium Key",
+       Note = "Use the key provided to access premium features.",
+       FileName = "SenHub_Key", -- Unique key file name
+       SaveKey = true, -- Save the user's key for future sessions
+       GrabKeyFromSite = false, -- Set to true if you want to fetch the key from a site
+       Key = {"Sen Hub Premium", "SenHub123", "PremiumAccess", "KeyForSenHub", "SenHubVIP"} -- List of accepted keys
+    }
+})
+
+-- Function to validate keys
+local function validateKey(player, key)
+    if usedKeys[key] then
+        player:Kick("Key is already redeemed. Please use a valid key.")
+        return false
+    end
+
+    if Window.KeySettings and Window.KeySettings.Key then -- Ensure KeySettings and Key exist
+        for _, validKey in ipairs(Window.KeySettings.Key) do
+            if key == validKey then
+                usedKeys[key] = true -- Mark the key as used
+                return true
+            end
+        end
+    end
+
+    Rayfield:Notify("Invalid Key", "The key you entered is not valid. Please try again.", 5)
+    return false
+end
+
+-- Example usage (replace this with your actual key input logic)
+local player = game.Players.LocalPlayer -- Get the local player
+local userKey = "Sen Hub Premium" -- Replace this with the key entered by the user
+if validateKey(player, userKey) then
+    Rayfield:Notify("Access Granted", "Welcome to Sen Hub! Enjoy your premium features.", 5)
+else 
+    Rayfield:Notify("Access Denied", "The key is invalid or already redeemed.", 5)
+end -- Properly close the if statement
+
+-- Farm Tab
+local MainTab = Window:CreateTab("Farm", 4483362458) -- Title, Image
+
+-- Add a toggle to the Farm tab
+local Toggle = MainTab:CreateToggle({
+    Name = "Auto Destroy Enemy",
+    CurrentValue = false,
+    Flag = "AutoDestroyEnemyToggle", -- Unique identifier for the toggle
+    Callback = function(Value)
+        if Value then
+            -- Code to execute when the toggle is turned on
+            while Value do
+                local args = {
+                    {
+                        {
+                            Event = "EnemyDestroy",
+                            Enemy = "b82ae611a4814893976ce1505ce639a2"
+                        },
+                        "\4"
+                    }
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+                task.wait(0.1) -- Adjust the delay as needed
+            end
+        else
+            -- Code to execute when the toggle is turned off
+            print("Auto Destroy Enemy disabled")
+        end
+    end,
+})
+
+Rayfield:LoadConfiguration() -- Load the configuration file if it exists
